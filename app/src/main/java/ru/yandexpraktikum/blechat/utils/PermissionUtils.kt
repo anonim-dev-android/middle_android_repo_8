@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 
 val ALL_BLE_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
     arrayOf(
@@ -34,6 +35,14 @@ fun Context.checkForConnectPermission(action: () -> Unit) {
             Manifest.permission.BLUETOOTH_CONNECT
         ) == PackageManager.PERMISSION_GRANTED -> action.invoke()
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S -> action.invoke()
+    }
+}
+
+fun Context.checkForPostNotificationPermission(action: () -> Unit) {
+    when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> action.invoke()
+        NotificationManagerCompat.from(this).areNotificationsEnabled() -> action.invoke()
     }
 }
 
